@@ -1,4 +1,5 @@
 import os
+import json
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -14,31 +15,65 @@ from .rate_limit import rate_limit
 
 app = FastAPI(title="Me-API Playground", version="1.0.0")
 
+
 # 🔹 Auto-seed database if empty
 @app.on_event("startup")
 def seed_if_empty():
     db = SessionLocal()
-    profile = db.query(models.Profile).first()
-    if not profile:
-        # Load your profile.json file
-        with open("sample_profile.json", "r") as f:
-            data = json.load(f)
+    try:
+        profile = db.query(Profile).first()
+        if not profile:
+            with open("sample_profile.json", "r") as f:
+                data = json.load(f)
 
-        # Insert profile into DB
-        new_profile = models.Profile(
-            name=data["name"],
-            email=data["email"],
-            education=data["education"],
-            skills=json.dumps(data["skills"]),      # store array as JSON string
-            projects=json.dumps(data["projects"]),  # store array as JSON string
-            work=json.dumps(data["work"]),
-            links=json.dumps(data["links"])
-        )
-        db.add(new_profile)
-        db.commit()
-    db.close()
+            # Create profile
+            profile = Profile(
+                name=data["name"],
+                email=data["email"],
+                education=data["education"],
+                github=data["links"].get("github"),
+                linkedin=data["links"].get("linkedin"),
+                portfolio=data["links"].get("resume"),
+            )
+            db.add(profile)
+            db.flush()
 
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "*") #setting up CORS 
+            # Add skills
+            skill_objs = [get_or_create_skill(db, s) for s in data["skills"]]
+            for s in skill_objs:
+                db.add(ProfileSkill(profile_id=profile.id, skill_id=s.id))
+
+            # Add projects
+            for p in data["projects"]:
+                proj = Project(profile_id=profile.id, title=p["title"], description=p["description"])
+                db.add(proj)
+                db.flush()
+                for l in p["links"]:
+                    db.add(ProjectLink(project_id=proj.id, label=l["label"], url=l["url"]))
+                for sname in p["skills"]:
+                    s = get_or_create_skill(db, sname)
+                    db.add(ProjectSkill(project_id=proj.id, skill_id=s.id))
+
+            # Add work
+            for w in data["work"]:
+                db.add(
+                    Work(
+                        profile_id=profile.id,
+                        company=w["company"],
+                        title=w["title"],
+                        start_date=w["start_date"],
+                        end_date=w.get("end_date"),
+                        description=w["description"],
+                    )
+                )
+
+            db.commit()
+    finally:
+        db.close()
+
+
+# ----- CORS -----
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"] if allowed_origins == "*" else [o.strip() for o in allowed_origins.split(",")],
