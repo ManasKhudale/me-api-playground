@@ -15,6 +15,12 @@ from .rate_limit import rate_limit
 
 app = FastAPI(title="Me-API Playground", version="1.0.0")
 
+# ----- DB setup -----
+Base.metadata.create_all(bind=engine)
+
+# 🔹 Absolute path to sample_profile.json
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SAMPLE_FILE = os.path.join(BASE_DIR, "sample_profile.json")
 
 # 🔹 Auto-seed database if empty
 @app.on_event("startup")
@@ -23,51 +29,55 @@ def seed_if_empty():
     try:
         profile = db.query(Profile).first()
         if not profile:
-            with open("sample_profile.json", "r") as f:
-                data = json.load(f)
+            if os.path.exists(SAMPLE_FILE):
+                with open(SAMPLE_FILE, "r") as f:
+                    data = json.load(f)
 
-            # Create profile
-            profile = Profile(
-                name=data["name"],
-                email=data["email"],
-                education=data["education"],
-                github=data["links"].get("github"),
-                linkedin=data["links"].get("linkedin"),
-                portfolio=data["links"].get("resume"),
-            )
-            db.add(profile)
-            db.flush()
-
-            # Add skills
-            skill_objs = [get_or_create_skill(db, s) for s in data["skills"]]
-            for s in skill_objs:
-                db.add(ProfileSkill(profile_id=profile.id, skill_id=s.id))
-
-            # Add projects
-            for p in data["projects"]:
-                proj = Project(profile_id=profile.id, title=p["title"], description=p["description"])
-                db.add(proj)
-                db.flush()
-                for l in p["links"]:
-                    db.add(ProjectLink(project_id=proj.id, label=l["label"], url=l["url"]))
-                for sname in p["skills"]:
-                    s = get_or_create_skill(db, sname)
-                    db.add(ProjectSkill(project_id=proj.id, skill_id=s.id))
-
-            # Add work
-            for w in data["work"]:
-                db.add(
-                    Work(
-                        profile_id=profile.id,
-                        company=w["company"],
-                        title=w["title"],
-                        start_date=w["start_date"],
-                        end_date=w.get("end_date"),
-                        description=w["description"],
-                    )
+                # Create profile
+                profile = Profile(
+                    name=data["name"],
+                    email=data["email"],
+                    education=data["education"],
+                    github=data["links"].get("github"),
+                    linkedin=data["links"].get("linkedin"),
+                    portfolio=data["links"].get("resume"),
                 )
+                db.add(profile)
+                db.flush()
 
-            db.commit()
+                # Add skills
+                skill_objs = [get_or_create_skill(db, s) for s in data["skills"]]
+                for s in skill_objs:
+                    db.add(ProfileSkill(profile_id=profile.id, skill_id=s.id))
+
+                # Add projects
+                for p in data["projects"]:
+                    proj = Project(profile_id=profile.id, title=p["title"], description=p["description"])
+                    db.add(proj)
+                    db.flush()
+                    for l in p["links"]:
+                        db.add(ProjectLink(project_id=proj.id, label=l["label"], url=l["url"]))
+                    for sname in p["skills"]:
+                        s = get_or_create_skill(db, sname)
+                        db.add(ProjectSkill(project_id=proj.id, skill_id=s.id))
+
+                # Add work
+                for w in data["work"]:
+                    db.add(
+                        Work(
+                            profile_id=profile.id,
+                            company=w["company"],
+                            title=w["title"],
+                            start_date=w["start_date"],
+                            end_date=w.get("end_date"),
+                            description=w["description"],
+                        )
+                    )
+
+                db.commit()
+                print("✅ Database seeded from sample_profile.json")
+            else:
+                print(f"⚠️ sample_profile.json not found at {SAMPLE_FILE}")
     finally:
         db.close()
 
@@ -81,8 +91,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-Base.metadata.create_all(bind=engine)
 
 
 def get_db():
@@ -120,7 +128,7 @@ def create_profile(data: ProfileIn, db: Session = Depends(get_db)):
         portfolio=data.links.get("portfolio"),
     )
     db.add(profile)
-    db.flush() 
+    db.flush()
 
     skill_objs = [get_or_create_skill(db, s) for s in data.skills]
     for s in skill_objs:
