@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "Me-API Playground",
+    "_postman_id": "00000000-0000-0000-0000-000000000000",
+    "description": "Basic requests for the Me-API Playground",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/profile"
+      }
+    },
+    {
+      "name": "Create Profile",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic {{basicAuth}}"
+          }
+        ],
+        "url": "{{baseUrl}}/profile",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Your Name\",\n  \"email\": \"you@example.com\",\n  \"education\": \"B.Tech ...\",\n  \"skills\": [\n    \"Python\",\n    \"FastAPI\"\n  ],\n  \"projects\": [\n    {\n      \"title\": \"Me-API Playground\",\n      \"description\": \"Demo project\",\n      \"links\": [\n        {\n          \"label\": \"GitHub\",\n          \"url\": \"https://github.com/yourhandle\"\n        }\n      ],\n      \"skills\": [\n        \"Python\",\n        \"FastAPI\"\n      ]\n    }\n  ],\n  \"work\": [\n    {\n      \"company\": \"Example Corp\",\n      \"title\": \"Software Engineer\",\n      \"start_date\": \"2023-06-01\",\n      \"description\": \"Worked on APIs\"\n    }\n  ],\n  \"links\": {\n    \"github\": \"https://github.com/yourhandle\",\n    \"linkedin\": \"https://linkedin.com/in/yourhandle\",\n    \"portfolio\": \"https://yourportfolio.com\"\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic {{basicAuth}}"
+          }
+        ],
+        "url": "{{baseUrl}}/profile",
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      }
+    },
+    {
+      "name": "List Projects",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/projects?skill=Python&q=api&limit=10&offset=0"
+      }
+    },
+    {
+      "name": "Top Skills",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/skills/top?limit=5"
+      }
+    },
+    {
+      "name": "Search",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/search?q=python"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "basicAuth",
+      "value": ""
+    }
+  ]
+}
