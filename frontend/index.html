@@ -670,9 +670,12 @@ a:focus,
   </footer>
 
   <script>
+    const API_BASE = "https://me-api-playground-ewrg.onrender.com/";
+    
     async function loadProfile() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/profile");
+        const res = await fetch(`${API_BASE}/profile`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         const data = await res.json();
 
         document.getElementById("name").textContent = data.name;
