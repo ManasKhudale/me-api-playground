@@ -1,0 +1,71 @@
+{
+  "name": "Manas Khudale",
+  "email": "manaskhudale@gmail.com",
+  "education": "B.Tech in Computer Science and Engineering, Manipal University Jaipur",
+  "skills": [
+    "Python",
+    "C++",
+    "SQL",
+    "Java",
+    "Docker",
+    "HTML",
+    "JavaScript",
+    "React.JS",
+    "Next.JS",
+    "CSS",
+    "MongoDB"
+  ],
+  "projects": [
+    {
+      "title": "Automatic Captcha using Cursor Movements",
+      "description": "Made an ML model which predicts whether a user is a bot or human",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/ManasKhudale/automatic-captcha-using-mouse-cursor-movements"
+        }        
+      ],
+      "skills": [
+        "Python",
+        "JavaScript",
+        "Machine Learning",
+        "Docker",
+        "Git"
+      ]
+    },
+    {
+      "title": "Graphoblog",
+      "description": "Created a personal business website for a graphologist. ",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/ManasKhudale/graphology-website-2"
+        },
+        {
+          "label": "Live Website",
+          "url": "https://graphology-website-2.vercel.app/"
+        }
+      ],
+      "skills": [
+        "React.JS",
+        "Next.JS",
+        "CSS",
+        "JavaScript"
+      ]
+    }
+  ],
+  "work": [
+    {
+      "company": "Bharatage Innovations Private Limited",
+      "title": "Java Developer Intern",
+      "start_date": "2023-06-01",
+      "end_date": null,
+      "description": "Developed the data layer infrastructure for the GenWise app in Java from scratch. "
+    }
+  ],
+  "links": {
+    "github": "https://github.com/ManasKhudale",
+    "linkedin": "https://www.linkedin.com/in/manaskhudale/",
+    "resume": "https://drive.google.com/file/d/1R52L3b3WSnmZXCrdvSWZlEJ3Gu9SeXdb/view?usp=sharing"
+  }
+}
