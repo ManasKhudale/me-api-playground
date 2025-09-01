@@ -14,6 +14,30 @@ from .rate_limit import rate_limit
 
 app = FastAPI(title="Me-API Playground", version="1.0.0")
 
+# 🔹 Auto-seed database if empty
+@app.on_event("startup")
+def seed_if_empty():
+    db = SessionLocal()
+    profile = db.query(models.Profile).first()
+    if not profile:
+        # Load your profile.json file
+        with open("sample_profile.json", "r") as f:
+            data = json.load(f)
+
+        # Insert profile into DB
+        new_profile = models.Profile(
+            name=data["name"],
+            email=data["email"],
+            education=data["education"],
+            skills=json.dumps(data["skills"]),      # store array as JSON string
+            projects=json.dumps(data["projects"]),  # store array as JSON string
+            work=json.dumps(data["work"]),
+            links=json.dumps(data["links"])
+        )
+        db.add(new_profile)
+        db.commit()
+    db.close()
+
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "*") #setting up CORS 
 app.add_middleware(
     CORSMiddleware,
